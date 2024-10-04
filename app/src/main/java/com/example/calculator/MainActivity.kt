@@ -138,9 +138,9 @@ fun Calculator(modifier: Modifier = Modifier) {
 
 
         Column(
-            verticalArrangement = Arrangement.spacedBy(10.dp), // Espaçamento entre as linhas
+            verticalArrangement = Arrangement.spacedBy(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth() // Garante que a coluna ocupe a largura total
+            modifier = Modifier.fillMaxWidth()
         ) {
 
                 Text(
@@ -168,26 +168,29 @@ fun Calculator(modifier: Modifier = Modifier) {
                         if (visor.isNotEmpty()) {
                         visor = visor.dropLast(1)
                     } },
-                    modifier = Modifier.size(85.dp), // Define o tamanho do botão circular
-                    shape = CircleShape, // Define o formato circular do botão
+                    modifier = Modifier.size(85.dp),
+                    shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(containerColor = cor3)
                 ) {
                     Text(
                         text = "DEL",
-                        fontSize = 19.sp // Define o tamanho do texto dentro do botão
+                        fontSize = 19.sp
                     )
                 }
                 Botao(texto = "C", cor = cor3) { visor = ""
                 result = ""}
-                Botao(texto = "%", cor = cor2) { visor += "%" }
+                Botao(texto = "%", cor = cor2) { if (visor.isNotEmpty() && !"+-x÷%.".contains(visor.last())) {
+                    visor += "%"
+                } }
                 Botao(texto = "÷", cor = cor2) {
-                    if(result == "" && visor !="")
+                    if (visor.isNotEmpty() && !"+-x÷%.".contains(visor.last())) {
                         visor += "÷"
-
-                    if(result != "") {
+                    }
+                    if(visor.isEmpty() && result.isNotEmpty())
+                    {
                         visor = result
-                        result = ""
                         visor += "÷"
+                        result = ""
                     }
                 }
             }
@@ -200,13 +203,14 @@ fun Calculator(modifier: Modifier = Modifier) {
                 Botao(texto = "2", cor = cor1) { visor += "2" }
                 Botao(texto = "3", cor = cor1) { visor += "3" }
                 Botao(texto = "x", cor = cor2) {
-                    if(result == "" && visor !="")
+                    if (visor.isNotEmpty() && !"+-x÷%.".contains(visor.last())) {
                         visor += "x"
-
-                    else {
+                    }
+                    if(visor.isEmpty() && result.isNotEmpty())
+                    {
                         visor = result
-                        result = ""
                         visor += "x"
+                        result = ""
                     }
                 }
             }
@@ -220,14 +224,16 @@ fun Calculator(modifier: Modifier = Modifier) {
                 Botao(texto = "5", cor = cor1) { visor += "5"}
                 Botao(texto = "6", cor = cor1) { visor += "6" }
                 Botao(texto = "+", cor = cor2) {
-                    if(result == "" && visor !="")
-                    visor += "+"
-
-                    else {
-                        visor = result
-                        result = ""
+                    if (visor.isNotEmpty() && !"+-x÷%.".contains(visor.last())) {
                         visor += "+"
                     }
+                    if(visor.isEmpty() && result.isNotEmpty())
+                    {
+                        visor = result
+                        visor += "+"
+                        result = ""
+                    }
+
             }
             }
 
@@ -240,13 +246,16 @@ fun Calculator(modifier: Modifier = Modifier) {
                 Botao(texto = "8", cor = cor1) { visor += "8" }
                 Botao(texto = "9", cor = cor1) { visor += "9" }
                 Botao(texto = "-", cor = cor2) {
-                    if(result == "" && visor != "")
-                        visor += "-"
-                    else {
-                        visor = result
-                        result = ""
+                    if (visor.isNotEmpty() && !"+-x÷%.".contains(visor.last())) {
                         visor += "-"
                     }
+                    if(visor.isEmpty() && result.isNotEmpty())
+                    {
+                        visor = result
+                        visor += "-"
+                        result = ""
+                    }
+
                 }
             }
 
@@ -255,17 +264,26 @@ fun Calculator(modifier: Modifier = Modifier) {
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Botao(texto = ".", cor = cor2) { visor += "." }
+                Botao(texto = ".", cor = cor2) {  if (visor.isNotEmpty() && !"+-x÷%.".contains(visor.last())) {
+                    visor += "."
+                } }
                 Botao(texto = "0", cor = cor1) { visor += "0" }
                 Button(
                     onClick = {
-                        val resultado = calcula(visor)
-                        result = if (resultado % 1 == 0f) {
-                            resultado.toInt().toString() // Se o número for inteiro, remove o ".0"
+                        if (visor.isNotEmpty() && !"+-x÷%".contains(visor.last())) {
+                            // Se o visor não está vazio e o último caractere não é um operador
+                            val resultado = calcula(visor)
+
+                            result = if (resultado % 1 == 0f) {
+                                resultado.toInt().toString() // Se o número for inteiro, remove o ".0"
+                            } else {
+                                resultado.toString() // Se for decimal, mantém o ponto e os decimais
+                            }
+
+                            visor = "" // Limpa o visor após o cálculo
                         } else {
-                            resultado.toString() // Se for decimal, mantém o ponto e os decimais
+                            result = "" // Mostra "Erro" se o visor estiver vazio ou terminar com um operador
                         }
-                        visor = ""
                     },
                     modifier = Modifier
                         .width(185.dp)
@@ -274,9 +292,10 @@ fun Calculator(modifier: Modifier = Modifier) {
                 ) {
                     Text(
                         text = "=",
-                        fontSize = 40.sp // Define o tamanho do texto dentro do botão
+                        fontSize = 40.sp
                     )
                 }
+
             }
             Spacer(modifier = Modifier.size(5.dp))
         }
